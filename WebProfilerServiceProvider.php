@@ -55,6 +55,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\Translation\DataCollector\TranslationDataCollector;
 use Symfony\Component\Translation\DataCollectorTranslator;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Symfony Web Profiler provider.
@@ -375,7 +376,9 @@ class WebProfilerServiceProvider implements ServiceProviderInterface, Controller
         $dispatcher->addSubscriber($app['profiler']->get('request'));
 
         if (isset($app['var_dumper.data_collector'])) {
-            $dispatcher->addSubscriber($app['var_dumper.dump_listener']);
+            $app->on(KernelEvents::REQUEST, function() use ($app) {
+                $app['var_dumper.dump_listener']->configure();
+            });
         }
     }
 
